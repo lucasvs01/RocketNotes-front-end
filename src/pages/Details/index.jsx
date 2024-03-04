@@ -5,57 +5,91 @@ import { Section } from "../../Components/Section"
 import { Tags } from "../../Components/Tags";
 import { ButtonText } from "../../Components/ButtonText";
 
-
+import { api } from "../../services/api";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 
 export function Details(){
+
+  const [data, setData] = useState(null);
+
+  const params = useParams();
+  const navigate = useNavigate();
+
+  function handleBack(){
+    navigate(-1)
+  }
+
+  async function handleRemoveNote(){
+    const confirm = window.confirm("Deseja realmente excluir a nota?")
+
+    if(confirm){
+      await api.delete(`/notes/${params.id}`)
+      navigate("/")
+    }
+  }
+
+  useEffect(() => {
+    async function fetchNoteDetails(){
+      const response = await api.get(`/notes/${params.id}`)
+      
+      setData(response.data)
+
+      
+      
+    }
+
+    fetchNoteDetails()
+  }
+  , [])
 
   return (
     <Container>
 
       <Header/>
 
-      <main>
+      { data &&
+        <main>
         <Content>
-          <ButtonText title="Excluir nota"/>
+          <ButtonText title="Excluir nota" onClick={handleRemoveNote}/>
           
-          <h1>Introdução ao React</h1>
+          <h1>{data.title}</h1>
 
-          <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-            when an unknown printer took a galley of type and scrambled it to make a type 
-            specimen book. It has survived not only five centuries, but also the leap into 
-            electronic typesetting, remaining essentially unchanged. It was popularised in 
-            the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, 
-            and more recently with desktop publishing software like Aldus PageMaker including 
-            versions of Lorem Ipsum.</p>
+          <p>{data.description}</p>
 
 
-          <Section title="Links Uteis">
-
-            <Links>
-              <li>
-                <a href="#">https://app.rocketseat.com.br/</a>
-                </li>
-
-              <li>
-                <a href="#">https://app.rocketseat.com.br/</a>
-                </li>
-            </Links>
-
-          </Section>
-
-          <Section title="Marcadores">
-            <Tags title="Express"></Tags>
-
-            <Tags title="Node"></Tags>
-          </Section>
+          {
+            data.links &&
+              <Section title="Links Uteis">
+                {           
+                  data.links.map(link => 
+                    <Links key={String(link.id)}>
+                    <li>
+                      <a href={link.url} target="_blank">
+                        {link.url}</a>
+                    </li>
+                  </Links>
+                  )
+                }
+              </Section>
+          }
 
 
-          <Button title="Voltar"/>
+        {    
+          data.tags &&
+              <Section title="Marcadores">
+                {
+                  data.tags.map(tag => <Tags key={String(tag.id)} title={tag.name}></Tags>)
+                }
+              </Section>   
+        }
+
+          <Button title="Voltar" onClick={handleBack}/>
 
         </Content>
-      </main>
+        </main>
+      }
 
 
 

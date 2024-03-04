@@ -4,16 +4,25 @@ import { Button } from "../../Components/Button"
 
 import { Link } from "react-router-dom"
 
-import { useContext } from "react"
-import { myContext } from "../../myContext"
+import { useState } from "react"
+import { useAuth } from "../../hooks/auth"
 
 
 import { FiMail, FiLock} from "react-icons/fi"
 
 export function SignIn(){
     
-    const data = useContext(myContext);
-    console.log(data)
+    
+    const [ email, setEmail ] = useState(" ");
+    const [ password, setPassword ] = useState(" ");
+    
+    const {SignIn} = useAuth();
+    
+    function handleSignIn(){
+
+        SignIn({email, password})
+
+    }
 
     return (
         <Container>
@@ -31,11 +40,11 @@ export function SignIn(){
                     Faça seu login
                 </h2>
 
-                <Input placeholder="E-mail" type="text" icon={FiMail}/>
-                <Input placeholder="Senha" type="password" icon={FiLock}/>
+                <Input placeholder="E-mail" type="text" icon={FiMail} onChange={e => setEmail(e.target.value)}/>
+                <Input placeholder="Senha" type="password" icon={FiLock} onChange={e => setPassword(e.target.value)}/>
 
                 
-                <Button title="Entrar"/>
+                <Button title="Entrar" onClick={handleSignIn}/>
 
 
                 <Link to="/register">
